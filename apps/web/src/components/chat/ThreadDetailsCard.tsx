@@ -83,7 +83,7 @@ export function ThreadDetailsCard({
       // PR lists, servers, lineage, side chats and automations scroll as they grow. Counting them
       // toward density would hide the section and workspace controls when the user asks to see more.
       const lists = element.querySelectorAll<HTMLElement>(
-        "[data-thread-relationships-panel], [data-thread-side-chats-panel], [data-thread-details-pr-list], [data-thread-automations-panel], [data-thread-details-server-overflow]",
+        "[data-thread-relationships-panel], [data-thread-side-chats-panel], [data-thread-details-pr-list], [data-thread-automations-panel], [data-thread-details-server-overflow], [data-thread-details-checks], [data-thread-details-mcp]",
       );
       const fittingHeight =
         next - Array.from(lists).reduce((sum, list) => sum + list.offsetHeight, 0);
@@ -117,7 +117,7 @@ export function ThreadDetailsCard({
   const card = (
     <div
       className={cn(
-        "dropdown-glass isolate contain-paint grid max-h-full grid-rows-[minmax(0,1fr)] overflow-hidden rounded-2xl",
+        "isolate contain-paint grid max-h-full grid-rows-[minmax(0,1fr)] overflow-hidden",
         mode === "popover" &&
           "max-h-[min(calc(100dvh-6.5rem),calc(var(--available-height,100dvh)-1rem))]",
       )}
@@ -126,7 +126,9 @@ export function ThreadDetailsCard({
       data-thread-details-card
     >
       <ScrollArea scrollFade className="min-h-0">
-        <div ref={setContentElement}>{children(density)}</div>
+        <div ref={setContentElement} className="space-y-2">
+          {children(density)}
+        </div>
       </ScrollArea>
     </div>
   );

@@ -308,6 +308,8 @@ import { ProviderSubagentBar } from "./chat/ProviderSubagentBar";
 import { getTriggerDisplayModelName } from "./chat/providerIconUtils";
 import { resolveScrollToEndClearance } from "./composerFooterLayout";
 import { ChatHeader } from "./chat/ChatHeader";
+import { ThreadVerification } from "./chat/ThreadVerification";
+import { ThreadSessionTabs } from "./chat/ThreadSessionTabs";
 import { useSideChat } from "./chat/useSideChat";
 import { useRemoteOpenState } from "~/remoteOpen";
 import { shouldShowOpenInPicker } from "./chat/OpenInPicker.logic";
@@ -1924,7 +1926,7 @@ export default function ChatView(props: ChatViewProps) {
     scheduleComposerFocusStable();
   };
   const insertArtifactTemplateStable = useStableCallback(insertArtifactTemplate);
-  const sendAppMessage = async (text: string) => {
+  const sendAppMessage = async (text: string, modelSelection?: ModelSelection) => {
     if (!isServerThread || activeThreadId === null) {
       throw new Error(gt("Messages from apps need a started thread."));
     }
@@ -1933,6 +1935,7 @@ export default function ChatView(props: ChatViewProps) {
       input: {
         threadId: activeThreadId,
         message: { messageId: newMessageId(), role: "user", text, attachments: [] },
+        ...(modelSelection ? { modelSelection } : {}),
         runtimeMode,
         interactionMode: DEFAULT_INTERACTION_MODE,
         dispatchMode: "queue",
@@ -1944,6 +1947,18 @@ export default function ChatView(props: ChatViewProps) {
     }
   };
   const sendAppMessageStable = useStableCallback(sendAppMessage);
+  const requestVerificationStable = useStableCallback((text: string) => {
+    if (!canOperateThread || isWorking || isSendBusy) {
+      return Promise.reject(
+        new Error("Verification is unavailable while this conversation is busy or read-only."),
+      );
+    }
+    const selection =
+      composerRef.current?.getSendContext().selectedModelSelection ??
+      composerSelectedModelSelection ??
+      undefined;
+    return sendAppMessage(text, selection);
+  });
   const queuedRunsControlRef = useRef<QueuedRunsControlHandle>(null);
 
   const {
@@ -3393,7 +3408,7 @@ export default function ChatView(props: ChatViewProps) {
   const content = (
     <div
       ref={setWorkspaceLayoutElement}
-      className="relative flex min-h-0 min-w-0 flex-1 overflow-hidden bg-background"
+      className="relative flex min-h-0 min-w-0 flex-1 overflow-hidden bg-background min-[1100px]:pr-12"
     >
       {embedded ? null : (
         <DeviceSetupDialogHost
@@ -3413,6 +3428,15 @@ export default function ChatView(props: ChatViewProps) {
         inert={rightPanelMaximized}
         onMouseUp={preventMiddleClickPasteOutsideEditable}
       >
+        {embedded ? null : (
+          <ThreadSessionTabs
+            environmentId={activeThread.environmentId}
+            projectId={activeThread.projectId}
+            activeThreadId={activeThread.id}
+            isDraft={draftId !== null}
+            onNewThread={handleNewThreadInActiveProjectStable}
+          />
+        )}
         {embedded ? null : (
           <header
             ref={threadPanelPopoverAnchorRef}
@@ -3454,6 +3478,16 @@ export default function ChatView(props: ChatViewProps) {
                 : {})}
               {...(threadFindEnabled ? { onFindInThread: openThreadFindStable } : {})}
             />
+            {isServerThread && activeThreadRef ? (
+              <ThreadVerification
+                key={activeThreadKey}
+                threadRef={activeThreadRef}
+                busy={isWorking || isSendBusy}
+                workspaceRoot={gitCwd ?? undefined}
+                onRequest={requestVerificationStable}
+                onOpenChanges={isGitRepo ? openChangesFromThreadPanelStable : undefined}
+              />
+            ) : null}
           </header>
         )}
 

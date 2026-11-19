@@ -29,7 +29,7 @@ import {
 } from "./pullRequestPresentation";
 
 // Fetch only on open to avoid per-row requests.
-function LazyChecksBody({
+function LazyPullRequestChecksBody({
   environmentId,
   reference,
   threadRef,
@@ -53,10 +53,10 @@ function LazyChecksBody({
       </p>
     );
   }
-  return <ChecksBody checks={detailQuery.data.checks} threadRef={threadRef} />;
+  return <PullRequestChecksBody checks={detailQuery.data.checks} threadRef={threadRef} />;
 }
 
-function ChecksBody({
+export function PullRequestChecksBody({
   checks,
   threadRef,
 }: {
@@ -225,9 +225,9 @@ export function PullRequestChecksPopover({
             <T>Check details are out of date. Refresh the pull request to update them.</T>
           </p>
         ) : checks !== undefined ? (
-          <ChecksBody checks={checks} threadRef={threadRef} />
+          <PullRequestChecksBody checks={checks} threadRef={threadRef} />
         ) : environmentId !== undefined && reference !== undefined ? (
-          <LazyChecksBody
+          <LazyPullRequestChecksBody
             environmentId={environmentId}
             reference={reference}
             threadRef={threadRef}
