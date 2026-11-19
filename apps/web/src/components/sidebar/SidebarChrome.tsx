@@ -34,6 +34,7 @@ import {
 import { Tooltip, TooltipPopup, TooltipTrigger } from "../ui/tooltip";
 import { readPullRequestListPreferences } from "../pullRequest/pullRequestListPreferences";
 import { isSidebarUtilityPage, useNavigateToMainApp } from "./mainAppLocation";
+import { SidebarAttentionMenu } from "./SidebarAttentionMenu";
 import { SidebarThreadUndoNotice } from "./SidebarThreadUndoNotice";
 import { SidebarProviderUpdatePill } from "./SidebarProviderUpdatePill";
 import { SidebarUpdateArchitectureWarning, SidebarUpdatePill } from "./SidebarUpdatePill";
@@ -197,18 +198,26 @@ function SidebarUtilityItem({
   icon,
   label,
   onClick,
+  active = false,
 }: {
   icon: ReactNode;
   label: string;
   onClick: () => void;
+  active?: boolean;
 }) {
   return (
-    <SidebarMenuItem className="shrink-0">
+    <SidebarMenuItem className="w-full shrink-0">
       <Tooltip>
         <TooltipTrigger
           render={
-            <SidebarMenuButton aria-label={label} onClick={onClick} size="icon">
+            <SidebarMenuButton
+              aria-label={label}
+              aria-current={active ? "page" : undefined}
+              isActive={active}
+              onClick={onClick}
+            >
               {icon}
+              <span>{label}</span>
             </SidebarMenuButton>
           }
         />
@@ -218,7 +227,12 @@ function SidebarUtilityItem({
   );
 }
 
-const SidebarUtilityMenu = memo(function SidebarUtilityMenu() {
+const SidebarUtilityMenu = memo(function SidebarUtilityMenu({
+  placement,
+}: {
+  placement: "navigation" | "footer";
+}) {
+  const pathname = useLocation({ select: (location) => location.pathname });
   const navigate = useNavigate();
   const navigateToMainApp = useNavigateToMainApp();
   const { isMobile, setOpenMobile } = useSidebar();
@@ -256,39 +270,51 @@ const SidebarUtilityMenu = memo(function SidebarUtilityMenu() {
   };
 
   return (
-    <SidebarMenu className="flex-row items-center">
-      {isOnUtilityPage ? (
-        <SidebarMenuItem className="min-w-0 flex-1">
-          <SidebarMenuButton onClick={handleBackClick}>
-            <ArrowLeftIcon />
-            <span>Back</span>
-          </SidebarMenuButton>
-        </SidebarMenuItem>
-      ) : (
+    <SidebarMenu className="flex-col items-stretch">
+      {placement === "navigation" ? (
         <>
-          <SidebarUtilityItem
-            icon={<SettingsIcon />}
-            label="Settings"
-            onClick={handleSettingsClick}
-          />
+          <SidebarAttentionMenu />
           {pullRequestsSupported ? (
             <SidebarUtilityItem
               icon={<PullRequestGlyph.pullRequest />}
               label="Pull requests"
+              active={pathname.startsWith("/pull-requests")}
               onClick={handlePullRequestsClick}
             />
           ) : null}
           <SidebarUtilityItem
             icon={<ChartNoAxesColumnIcon />}
             label="Usage"
+            active={pathname === "/usage"}
             onClick={handleUsageClick}
           />
         </>
+      ) : (
+        <>
+          {isOnUtilityPage ? (
+            <SidebarMenuItem className="min-w-0 flex-1">
+              <SidebarMenuButton onClick={handleBackClick}>
+                <ArrowLeftIcon />
+                <span>Back</span>
+              </SidebarMenuButton>
+            </SidebarMenuItem>
+          ) : (
+            <SidebarUtilityItem
+              icon={<SettingsIcon />}
+              label="Settings"
+              onClick={handleSettingsClick}
+            />
+          )}
+          <SidebarThreadUndoNotice />
+          <SidebarUpdatePill />
+        </>
       )}
-      <SidebarThreadUndoNotice />
-      <SidebarUpdatePill />
     </SidebarMenu>
   );
+});
+
+export const SidebarNavigation = memo(function SidebarNavigation() {
+  return <SidebarUtilityMenu placement="navigation" />;
 });
 
 export const SidebarChromeFooter = memo(function SidebarChromeFooter() {
@@ -296,7 +322,7 @@ export const SidebarChromeFooter = memo(function SidebarChromeFooter() {
     <SidebarFooter>
       <SidebarProviderUpdatePill />
       <SidebarUpdateArchitectureWarning />
-      <SidebarUtilityMenu />
+      <SidebarUtilityMenu placement="footer" />
     </SidebarFooter>
   );
 });
