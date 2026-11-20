@@ -6,6 +6,7 @@ import {
   type ThreadPullRequestLink,
 } from "@t3tools/contracts";
 import { AsyncResult, Atom } from "effect/reactivity";
+import type { ReactNode } from "react";
 import { expect, it, vi } from "vite-plus/test";
 import { page } from "vite-plus/test/browser";
 
@@ -125,7 +126,13 @@ function setup(input: {
   };
 }
 
-function Panel({ fixture }: { fixture: ReturnType<typeof setup> }) {
+function Panel({
+  fixture,
+  verification,
+}: {
+  fixture: ReturnType<typeof setup>;
+  verification?: ReactNode;
+}) {
   const noop = () => {};
   const scriptResult = async () => ({ ok: true }) as never;
   return (
@@ -173,6 +180,7 @@ function Panel({ fixture }: { fixture: ReturnType<typeof setup> }) {
         onUpdateProjectScript={scriptResult}
         onDeleteProjectScript={scriptResult}
         usage={{ providerInstanceId: null, providers: [], sources: [], contextWindow: null }}
+        {...(verification ? { verification } : {})}
       />
     </ChatCanvasContext>
   );
@@ -214,4 +222,20 @@ it("offers no Initialize Git before the server config says where No project live
   await expect
     .element(page.getByRole("button", { name: "Initialize Git" }))
     .not.toBeInTheDocument();
+});
+
+it("shows the verification action inside the Changes card", async () => {
+  using fixture = setup({
+    workspaceRoot: "/work/plain",
+    folder: "/work/plain",
+    pullRequests: [linkedPullRequest],
+  });
+  await using _screen = await render(
+    <Panel fixture={fixture} verification={<button type="button">Verify changes</button>} />,
+  );
+  await expect
+    .element(
+      page.getByRole("region", { name: "Changes" }).getByRole("button", { name: "Verify changes" }),
+    )
+    .toBeVisible();
 });

@@ -3411,16 +3411,6 @@ export default function ChatView(props: ChatViewProps) {
                 : {})}
               {...(threadFindEnabled ? { onFindInThread: openThreadFindStable } : {})}
             />
-            {isServerThread && activeThreadRef ? (
-              <ThreadVerification
-                key={activeThreadKey}
-                threadRef={activeThreadRef}
-                busy={isWorking || isSendBusy}
-                workspaceRoot={gitCwd ?? undefined}
-                onRequest={requestVerificationStable}
-                onOpenChanges={isGitRepo ? openChangesFromThreadPanelStable : undefined}
-              />
-            ) : null}
           </header>
         )}
 
@@ -3981,6 +3971,20 @@ export default function ChatView(props: ChatViewProps) {
                   onComposerFocusRequest={scheduleComposerFocusStable}
                   {...(isServerThread && isGitRepo
                     ? { onOpenChanges: openChangesFromThreadPanelStable }
+                    : {})}
+                  {...(isServerThread && activeThreadRef
+                    ? {
+                        verification: (
+                          <ThreadVerification
+                            key={activeThreadKey}
+                            threadRef={activeThreadRef}
+                            busy={isWorking || isSendBusy}
+                            workspaceRoot={gitCwd ?? undefined}
+                            onRequest={requestVerificationStable}
+                            onOpenChanges={isGitRepo ? openChangesFromThreadPanelStable : undefined}
+                          />
+                        ),
+                      }
                     : {})}
                   onRunProjectScript={runProjectScriptStable}
                   onAddProjectScript={saveProjectScriptStable}
