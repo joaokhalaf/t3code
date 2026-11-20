@@ -19,14 +19,14 @@ Para atualizar, encerre o servidor, execute `git pull --ff-only` e `vp i`, depoi
 
 ## Acompanhar o T3 Code oficial
 
-Com a árvore limpa na branch `parade`, execute:
+A branch `parade` segue as releases estáveis do T3 Code, porque o inicializador Windows usa o backend do app instalado. Com a árvore limpa na branch `parade`, execute:
 
 ```sh
-scripts/parade-sync.sh          # rebase sobre o oficial e checks dos arquivos do fork
+scripts/parade-sync.sh          # rebase sobre a release estável mais recente e checks dos arquivos do fork
 scripts/parade-sync.sh --push   # idem e publica com --force-with-lease
 ```
 
-O script guarda a branch atual em `parade-backup/<data>`, faz o rebase sobre `upstream/main` e para no primeiro conflito, listando os arquivos. Depois de resolver, `git rebase --continue` e rode o script de novo. Sem conflito, ele reinstala dependências e roda `vp run i18n:check` e `vp run check:changed upstream/main`. Testes de navegador podem estourar o tempo sob carga no WSL; rode o arquivo que falhou isoladamente com `vp test run --project browser <arquivo>` antes de tratar como regressão.
+O script guarda a branch atual em `parade-backup/<data>`, faz o rebase sobre a última tag `vX.Y.Z` e para no primeiro conflito, listando os arquivos. Depois de resolver, `git rebase --continue` e rode o script de novo. Sem conflito, ele reinstala dependências e roda `vp run check:changed <release>`. Atualize o app do Windows para a mesma release antes de abrir o T3 Parade. Testes de navegador podem estourar o tempo sob carga no WSL; rode o arquivo que falhou isoladamente com `vp test run --project browser <arquivo>` antes de tratar como regressão.
 
 ## Windows com WSL
 

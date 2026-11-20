@@ -23,8 +23,15 @@ $scriptLinux = "$Repository/scripts/windows/start-fork-web.sh"
 $origin = "http://127.0.0.1:$WebPort"
 & wsl.exe -d $Distro --exec test -f "$Repository/apps/web/vite.config.ts"
 if ($LASTEXITCODE -ne 0) { throw "The clone is not available at $Repository in $Distro." }
+# The interface comes from the clone and the backend from the installed app, so both must be the same release.
+$installedVersion = (Get-Item -LiteralPath $DesktopExecutable).VersionInfo.ProductVersion -replace '\.0$', ''
+$forkRelease = (& wsl.exe -d $Distro --exec /bin/bash "$scriptLinux" "$Repository" $WebPort $ServerPort release | Out-String).Trim()
+if ($LASTEXITCODE -ne 0) { throw "The clone is not on a stable release. Run scripts/parade-sync.sh in $Repository." }
+if ("v$installedVersion" -ne $forkRelease) {
+    throw "Installed T3 Code is v$installedVersion but the clone is based on $forkRelease. Run scripts/parade-sync.sh in the clone and update the app to the same release."
+}
 if ($ValidateOnly) {
-    [pscustomobject]@{ Desktop = $DesktopExecutable; Repository = $Repository; Distro = $Distro; Origin = $origin; Profile = $forkRoot }
+    [pscustomobject]@{ Desktop = $DesktopExecutable; Repository = $Repository; Distro = $Distro; Origin = $origin; Profile = $forkRoot; Release = $forkRelease }
     exit 0
 }
 New-Item -ItemType Directory -Force -Path $logRoot | Out-Null
@@ -43,6 +50,14 @@ if ($InstallShortcut) {
 $mutex = New-Object System.Threading.Mutex($false, 'Local\T3ParadeLauncher')
 $ownsMutex = $mutex.WaitOne(0)
 if (!$ownsMutex) { $mutex.Dispose(); exit 0 }
+# T3 Parade shares the official app's conversation history; two backends on one database corrupt it.
+if (Get-Process -Name ([IO.Path]::GetFileNameWithoutExtension($DesktopExecutable)) -ErrorAction SilentlyContinue) {
+    $mutex.ReleaseMutex()
+    $mutex.Dispose()
+    Add-Type -AssemblyName PresentationFramework
+    [System.Windows.MessageBox]::Show('Close T3 Code first. T3 Parade uses the same conversation history.', 'T3 Parade') | Out-Null
+    exit 1
+}
 $web = $null
 $app = $null
 try {

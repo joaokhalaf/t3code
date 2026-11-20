@@ -1,5 +1,6 @@
 #!/usr/bin/env bash
-# Rebase the parade branch onto the official T3 Code and run the repo's changed-file checks.
+# Rebase the parade branch onto the latest stable T3 Code release and run the repo's changed-file checks.
+# The Windows launcher pairs this interface with the installed app's backend, so both must be the same release.
 # Usage: scripts/parade-sync.sh [--push]
 set -euo pipefail
 
@@ -12,18 +13,19 @@ cd "$(git rev-parse --show-toplevel)"
 [ -z "$(git status --porcelain)" ] || { echo "Working tree is not clean; commit or stash first." >&2; exit 2; }
 
 git remote get-url upstream >/dev/null 2>&1 || git remote add upstream "$UPSTREAM_URL"
-git fetch --quiet upstream
-behind=$(git rev-list --count HEAD..upstream/main)
-if [ "$behind" -eq 0 ]; then
-	echo "Already on top of upstream/main."
+git fetch --quiet --tags upstream
+release=$(git tag -l 'v*' --sort=-v:refname | grep -E '^v[0-9]+\.[0-9]+\.[0-9]+$' | head -1)
+[ -n "$release" ] || { echo "No stable release tag found." >&2; exit 1; }
+if git merge-base --is-ancestor "$release" HEAD; then
+	echo "Already on top of $release."
 	exit 0
 fi
 
 backup="parade-backup/$(date +%Y-%m-%d-%H%M)"
 git branch "$backup" HEAD
-echo "Backup: $backup. Rebasing $(git rev-list --count upstream/main..HEAD) commit(s) over $behind upstream commit(s)."
+echo "Backup: $backup. Rebasing $(git rev-list --count "$release"..HEAD) commit(s) onto $release."
 
-if ! git rebase upstream/main; then
+if ! git rebase "$release"; then
 	echo
 	echo "Conflicts in:"
 	git diff --name-only --diff-filter=U | sed 's/^/  /'
@@ -32,12 +34,12 @@ if ! git rebase upstream/main; then
 fi
 
 vp install
-vp run i18n:check
 if [ -d "$BROWSER_LIBS" ]; then
 	export LD_LIBRARY_PATH="$BROWSER_LIBS${LD_LIBRARY_PATH:+:$LD_LIBRARY_PATH}"
 fi
-vp run check:changed upstream/main
+vp run check:changed "$release"
 
+echo "Update the Windows T3 Code app to ${release#v} before opening T3 Parade."
 if [ "${1:-}" = "--push" ]; then
 	git push --force-with-lease origin "$BRANCH"
 else

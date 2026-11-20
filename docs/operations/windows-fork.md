@@ -21,9 +21,15 @@ Open **T3 Parade** on the Windows desktop. The launcher starts the frontend, wai
 
 For an installation outside the default location, pass `-DesktopExecutable 'C:\path\T3 Code (Beta).exe'` when creating the shortcut. `-WebPort` and `-ServerPort` select different ports.
 
+## Release match and shared history
+
+The interface comes from this checkout and the backend from the installed app, so both must be the same stable release. The launcher compares the installed app version with the release under the `parade` branch and refuses to start when they differ or when the branch includes upstream commits after that release. Run `scripts/parade-sync.sh` and update the app to the same release to fix it.
+
+T3 Parade uses the official app's conversation history. The installed backend keeps WSL state in `~/.t3/dev` when it serves a development interface, so the launcher replaces `~/.t3/dev` with a link to `~/.t3/userdata`, moving any previous directory to `~/.t3/dev.before-parade-<timestamp>`. Close T3 Code before opening T3 Parade: the launcher refuses to start while it runs, because two backends on one history corrupt it. Do not open T3 Code while T3 Parade is open.
+
 ## State and troubleshooting
 
-Windows desktop state, the Chromium profile, and launcher logs live under `%LOCALAPPDATA%\T3-Parade`. The WSL backend uses T3's development state at `~/.t3/dev`; it does not open production `~/.t3/userdata`. Other T3 desktop development sessions use that same Linux development directory, so do not run them concurrently with this launcher. The existing production app is not replaced, and automatic updates are disabled for the launcher process.
+Windows desktop state, the Chromium profile, and launcher logs live under `%LOCALAPPDATA%\T3-Parade`. The existing production app is not replaced, and automatic updates are disabled for the launcher process.
 
 On the first launch, onboarding can discover agent history. Uncheck project import to start with an empty environment. Authentication stays with the existing WSL CLIs.
 
