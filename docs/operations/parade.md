@@ -17,6 +17,17 @@ Abra a URL de pareamento exibida no terminal. Ela é uma credencial temporária:
 
 Para atualizar, encerre o servidor, execute `git pull --ff-only` e `vp i`, depois repita o comando de execução. Faça backup do estado com o servidor parado antes de atualizar. Não copie `.t3`, `.env`, tokens ou perfis de navegador para o repositório.
 
+## Acompanhar o T3 Code oficial
+
+Com a árvore limpa na branch `parade`, execute:
+
+```sh
+scripts/parade-sync.sh          # rebase sobre o oficial e checks dos arquivos do fork
+scripts/parade-sync.sh --push   # idem e publica com --force-with-lease
+```
+
+O script guarda a branch atual em `parade-backup/<data>`, faz o rebase sobre `upstream/main` e para no primeiro conflito, listando os arquivos. Depois de resolver, `git rebase --continue` e rode o script de novo. Sem conflito, ele reinstala dependências e roda `vp run i18n:check` e `vp run check:changed upstream/main`. Testes de navegador podem estourar o tempo sob carga no WSL; rode o arquivo que falhou isoladamente com `vp test run --project browser <arquivo>` antes de tratar como regressão.
+
 ## Windows com WSL
 
 O [inicializador Windows](windows-fork.md) abre a interface deste checkout na janela nativa do T3 Code instalado no Windows. Esse modo requer o aplicativo original já instalado e usa o backend que ele fornece. Ele não é um instalador independente. Para executar frontend e backend deste fork juntos, use o comando acima e abra a interface no navegador do Windows.
