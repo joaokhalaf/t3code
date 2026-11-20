@@ -12226,5 +12226,7 @@
   "3df26cf4d95651f6": "Informe del agente y evidencias",
   "3c1124fd40af990e": "Aún no se ha solicitado una verificación para esta conversación.",
   "1b7c524fccf06537": "Te necesita",
-  "8cbd5f5fc2dbac2d": "Ninguna conversación necesita tu atención"
+  "8cbd5f5fc2dbac2d": "Ninguna conversación necesita tu atención",
+  "5a133ffc12889051": "Ventana de contexto: {percent}% usado, {tokens} tokens",
+  "b37ab3d4575fe11e": "Ventana de contexto: {tokens} tokens"
 }

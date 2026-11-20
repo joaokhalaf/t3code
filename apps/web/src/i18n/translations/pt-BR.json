@@ -12230,5 +12230,7 @@
   "3df26cf4d95651f6": "Relatório do agente e evidências",
   "3c1124fd40af990e": "Nenhuma verificação solicitada para esta conversa ainda.",
   "1b7c524fccf06537": "Precisa de você",
-  "8cbd5f5fc2dbac2d": "Nenhuma conversa precisa da sua atenção"
+  "8cbd5f5fc2dbac2d": "Nenhuma conversa precisa da sua atenção",
+  "5a133ffc12889051": "Janela de contexto: {percent}% usado, {tokens} tokens",
+  "b37ab3d4575fe11e": "Janela de contexto: {tokens} tokens"
 }

@@ -12231,5 +12231,7 @@
   "3df26cf4d95651f6": "Rapport de l’agent et preuves",
   "3c1124fd40af990e": "Aucune vérification demandée pour cette conversation pour le moment.",
   "1b7c524fccf06537": "Votre attention",
-  "8cbd5f5fc2dbac2d": "Aucune conversation ne nécessite votre attention"
+  "8cbd5f5fc2dbac2d": "Aucune conversation ne nécessite votre attention",
+  "5a133ffc12889051": "Fenêtre de contexte : {percent} % utilisés, {tokens} jetons",
+  "b37ab3d4575fe11e": "Fenêtre de contexte : {tokens} jetons"
 }

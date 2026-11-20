@@ -12240,5 +12240,7 @@
   "3df26cf4d95651f6": "Agent report and evidence",
   "3c1124fd40af990e": "No verification requested for this conversation yet.",
   "1b7c524fccf06537": "Needs you",
-  "8cbd5f5fc2dbac2d": "No threads need your attention"
+  "8cbd5f5fc2dbac2d": "No threads need your attention",
+  "5a133ffc12889051": "Context window: {percent}% used, {tokens} tokens",
+  "b37ab3d4575fe11e": "Context window: {tokens} tokens"
 }
