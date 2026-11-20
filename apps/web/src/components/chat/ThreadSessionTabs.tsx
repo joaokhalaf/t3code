@@ -1,14 +1,20 @@
 import { useGT } from "gt-react";
-import { Link } from "@tanstack/react-router";
+import { Link, useNavigate } from "@tanstack/react-router";
 import { scopeProjectRef } from "@t3tools/client-runtime/environment";
 import type { EnvironmentId, ProjectId, ThreadId } from "@t3tools/contracts";
-import { MessageSquareIcon, PlusIcon } from "lucide-react";
+import { MessageSquareIcon, PlusIcon, XIcon } from "lucide-react";
+import { useEffect, useRef } from "react";
 import { useThreadShellsForProjectRefs } from "../../state/entities";
 import { cn } from "../../lib/utils";
 import { COLLAPSED_SIDEBAR_TITLEBAR_INSET_CLASS } from "../../workspaceTitlebar";
 import { Button } from "../ui/button";
 import { Tooltip, TooltipPopup, TooltipTrigger } from "../ui/tooltip";
-import { selectThreadSessionTabs } from "./threadSessionTabs.logic";
+import {
+  selectThreadSessionTabs,
+  sessionAfterClose,
+  sessionTabKey,
+} from "./threadSessionTabs.logic";
+import { useThreadSessionTabsStore } from "./threadSessionTabsStore";
 
 function revealActiveSession(element: HTMLAnchorElement | null) {
   element?.scrollIntoView({ block: "nearest", inline: "nearest" });
@@ -30,7 +36,32 @@ export function ThreadSessionTabs({
   const gt = useGT();
   const project = scopeProjectRef(environmentId, projectId);
   const threads = useThreadShellsForProjectRefs([project]);
-  const sessions = selectThreadSessionTabs(threads, project, activeThreadId);
+  const navigate = useNavigate();
+  const closed = useThreadSessionTabsStore((state) => state.closed);
+  const closeTab = useThreadSessionTabsStore((state) => state.close);
+  const reopenTab = useThreadSessionTabsStore((state) => state.reopen);
+  const sessions = selectThreadSessionTabs(threads, project, activeThreadId, new Set(closed));
+  const activeKey = sessionTabKey({ environmentId, id: activeThreadId });
+  const arrivedAt = useRef<string | null>(null);
+  // oxlint-disable-next-line t3code/no-unreasoned-state-sync -- arriving at a thread from any entry point (sidebar, search, links) brings back its closed tab; closing the open tab keeps the same thread, so it stays closed
+  useEffect(() => {
+    if (isDraft || arrivedAt.current === activeKey) return;
+    arrivedAt.current = activeKey;
+    reopenTab(activeKey);
+  }, [activeKey, isDraft, reopenTab]);
+  const closeSession = (threadId: ThreadId) => {
+    closeTab(sessionTabKey({ environmentId, id: threadId }));
+    if (threadId !== activeThreadId) return;
+    const next = sessionAfterClose(sessions, threadId);
+    if (next) {
+      void navigate({
+        to: "/$environmentId/$threadId",
+        params: { environmentId, threadId: next.id },
+      });
+    } else {
+      onNewThread();
+    }
+  };
   if (sessions.length === 0 && !isDraft) return null;
   return (
     <nav
@@ -43,23 +74,41 @@ export function ThreadSessionTabs({
     >
       <div className="flex min-w-0 flex-1 items-center gap-1 overflow-x-auto py-1">
         {sessions.map((thread) => (
-          <Link
+          <div
             key={thread.id}
-            ref={thread.id === activeThreadId ? revealActiveSession : undefined}
-            to="/$environmentId/$threadId"
-            params={{ environmentId, threadId: thread.id }}
-            aria-current={thread.id === activeThreadId ? "page" : undefined}
-            title={thread.title}
             className={cn(
-              "flex h-8 max-w-52 min-w-0 shrink-0 items-center gap-2 rounded-lg border px-3 text-xs outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-ring [-webkit-app-region:no-drag]",
+              "flex h-8 max-w-56 min-w-0 shrink-0 items-center rounded-lg border [-webkit-app-region:no-drag]",
               thread.id === activeThreadId
                 ? "border-border bg-background text-foreground"
                 : "border-transparent text-muted-foreground hover:bg-sidebar-row-hover hover:text-foreground",
             )}
+            onAuxClick={(event) => {
+              if (event.button !== 1) return;
+              event.preventDefault();
+              closeSession(thread.id);
+            }}
           >
-            <MessageSquareIcon aria-hidden className="size-3 shrink-0" />
-            <span className="truncate">{thread.title}</span>
-          </Link>
+            <Link
+              ref={thread.id === activeThreadId ? revealActiveSession : undefined}
+              to="/$environmentId/$threadId"
+              params={{ environmentId, threadId: thread.id }}
+              aria-current={thread.id === activeThreadId ? "page" : undefined}
+              title={thread.title}
+              className="flex h-full min-w-0 flex-1 items-center gap-2 rounded-lg ps-3 pe-1 text-xs outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-ring"
+            >
+              <MessageSquareIcon aria-hidden className="size-3 shrink-0" />
+              <span className="truncate">{thread.title}</span>
+            </Link>
+            <Button
+              variant="ghost-muted"
+              size="icon-micro"
+              className="me-1 shrink-0"
+              aria-label={gt("Close {name}", { name: thread.title })}
+              onClick={() => closeSession(thread.id)}
+            >
+              <XIcon aria-hidden />
+            </Button>
+          </div>
         ))}
         {isDraft ? (
           <span
