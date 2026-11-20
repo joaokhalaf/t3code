@@ -17,7 +17,7 @@ $launcher = '\\wsl.localhost\Ubuntu\home\YOU\work\t3code\scripts\windows\start-f
 & $launcher -Repository /home/YOU/work/t3code -Distro Ubuntu -InstallShortcut
 ```
 
-Open **T3 Parade** on the Windows desktop. The launcher starts the frontend, waits for it, then opens the native window. Closing that window stops the frontend it started. A second invocation while it runs returns without creating another stack. The WSL server lifecycle is managed by the desktop runtime.
+Open **T3 Parade** on the Windows desktop. The shortcut runs the launcher through a headless console host, so no terminal window stays open even when Windows Terminal is the default console. The launcher starts the frontend, waits for it, then opens the native window. Closing that window stops the frontend it started. A second invocation while it runs returns without creating another stack. The WSL server lifecycle is managed by the desktop runtime.
 
 For an installation outside the default location, pass `-DesktopExecutable 'C:\path\T3 Code (Beta).exe'` when creating the shortcut. `-WebPort` and `-ServerPort` select different ports.
 

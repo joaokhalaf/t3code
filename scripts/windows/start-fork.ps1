@@ -39,8 +39,9 @@ if ($InstallShortcut) {
     $shortcutPath = Join-Path ([Environment]::GetFolderPath('Desktop')) 'T3 Parade.lnk'
     $wslScriptPath = "\\wsl.localhost\$Distro$($Repository.Replace('/', '\'))\scripts\windows\start-fork.ps1"
     $shortcut = (New-Object -ComObject WScript.Shell).CreateShortcut($shortcutPath)
-    $shortcut.TargetPath = "$env:SystemRoot\System32\WindowsPowerShell\v1.0\powershell.exe"
-    $shortcut.Arguments = "-NoProfile -ExecutionPolicy Bypass -WindowStyle Hidden -File `"$wslScriptPath`" -Repository `"$Repository`" -Distro `"$Distro`" -DesktopExecutable `"$DesktopExecutable`" -WebPort $WebPort -ServerPort $ServerPort"
+    # Windows Terminal ignores -WindowStyle Hidden when it is the default console; a headless conhost shows no window.
+    $shortcut.TargetPath = "$env:SystemRoot\System32\conhost.exe"
+    $shortcut.Arguments = "--headless `"$env:SystemRoot\System32\WindowsPowerShell\v1.0\powershell.exe`" -NoProfile -ExecutionPolicy Bypass -WindowStyle Hidden -File `"$wslScriptPath`" -Repository `"$Repository`" -Distro `"$Distro`" -DesktopExecutable `"$DesktopExecutable`" -WebPort $WebPort -ServerPort $ServerPort"
     $shortcut.IconLocation = "$DesktopExecutable,0"
     $shortcut.Description = 'T3 Parade - custom layout from the WSL clone'
     $shortcut.Save()
