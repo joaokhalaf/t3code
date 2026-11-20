@@ -60,7 +60,11 @@ export function ThreadDetailsUsage({
   const notice = limitsNotice(limits);
 
   return (
-    <ThreadDetailsSection headingId="thread-details-usage-heading" title="Usage limits">
+    <ThreadDetailsSection
+      headingId="thread-details-usage-heading"
+      title="Usage limits"
+      showHeading={false}
+    >
       <div className="grid grid-cols-[auto_minmax(3rem,1fr)_auto] gap-x-3 text-xs">
         {notice ? (
           <UsageRow

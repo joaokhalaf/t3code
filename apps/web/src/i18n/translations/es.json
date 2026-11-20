@@ -1,6 +1,12 @@
 {
   "5a133ffc12889051": "Ventana de contexto: {percent}% usado, {tokens} tokens",
   "b37ab3d4575fe11e": "Ventana de contexto: {tokens} tokens",
+  "a3d040c4ef4fc6e9": "Por encima del ritmo",
+  "b16fdf56b16d99c9": "Al ritmo",
+  "90f977e97ae8b6c6": "Por debajo del ritmo",
+  "ea52810c3d4d79db": "Límites de uso: {usage}",
+  "a805e410d7962cb5": "{label}: {percent}% usado",
+  "728c6cc1431e76c8": "Se renueva en {duration} · {time}",
   "655ace1b049d1c8e": "Comprobaciones",
   "fcd050d6caff1976": "aprobadas",
   "84c3498fa245f093": "MCPs",

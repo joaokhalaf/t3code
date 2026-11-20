@@ -3653,6 +3653,12 @@ export default function ChatView(props: ChatViewProps) {
                             {!composerMounted ? null : (
                               <ChatComposer
                                 contextWindow={activeContextWindow}
+                                usageLimits={{
+                                  providerInstanceId: activeProviderInstanceId,
+                                  providers: providerStatuses,
+                                  sources:
+                                    serverConfig?.usageLimitSources ?? EMPTY_USAGE_LIMIT_SOURCES,
+                                }}
                                 canOperateThread={canOperateThread}
                                 reportedModelSelection={reportedModelSelection}
                                 multipleModelSelections={multipleModelSelections}

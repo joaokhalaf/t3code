@@ -1,3 +1,4 @@
+import type { ComposerUsageLimitsInput } from "./composerUsageLimits.logic";
 import type { ContextWindowSnapshot } from "@t3tools/client-runtime/state/context-window";
 import { VoiceInputSetup } from "./VoiceInputSetup";
 import { useComposerTypingGuard } from "./useComposerTypingGuard";
@@ -354,6 +355,7 @@ export interface ChatComposerHandle {
 export interface ChatComposerProps {
   composerDraftTarget: ScopedThreadRef | DraftId;
   contextWindow: ContextWindowSnapshot | null;
+  usageLimits: ComposerUsageLimitsInput;
   environmentId: EnvironmentId;
   canOperateThread: boolean;
   attachmentUploadsCapabilityKnown: boolean;
@@ -2443,6 +2445,7 @@ export const ChatComposer = memo(function ChatComposer(props: ChatComposerProps)
   const composerControls = (
     <ComposerControlsBar
       contextWindow={props.contextWindow}
+      usageLimits={props.usageLimits}
       environmentId={environmentId}
       workspaceCwd={gitCwd}
       routeKind={routeKind}
