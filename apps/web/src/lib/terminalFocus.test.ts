@@ -262,16 +262,16 @@ describe("focusTerminal", () => {
     const ref = threadRef("panel-fallback");
     const panel = useRightPanelStore.getState();
     panel.openTerminal(ref, "a");
-    panel.open(ref, "diff");
-    const { activeSurfaceId: diffSurfaceId } = selectThreadRightPanelState(
+    panel.open(ref, "pull-requests");
+    const { activeSurfaceId: otherSurfaceId } = selectThreadRightPanelState(
       useRightPanelStore.getState().byThreadKey,
       ref,
     );
     const focus = vi.fn(() => true);
     const unregister = registerTerminalFocusTarget({ threadRef: ref, terminalId: "a", focus });
-    expect(diffSurfaceId).not.toBeNull();
+    expect(otherSurfaceId).not.toBeNull();
 
-    useRightPanelStore.getState().closeSurface(ref, diffSurfaceId!);
+    useRightPanelStore.getState().closeSurface(ref, otherSurfaceId!);
     focusActivePanelTerminal(ref);
 
     expect(focus).toHaveBeenCalledTimes(1);
@@ -309,8 +309,8 @@ describe("focusTerminal", () => {
       useRightPanelStore.getState().byThreadKey,
       ref,
     ).activeSurfaceId!;
-    panel.open(ref, "diff");
-    const diffSurfaceId = selectThreadRightPanelState(
+    panel.open(ref, "pull-requests");
+    const otherSurfaceId = selectThreadRightPanelState(
       useRightPanelStore.getState().byThreadKey,
       ref,
     ).activeSurfaceId!;
@@ -318,17 +318,17 @@ describe("focusTerminal", () => {
     const unregister = registerTerminalFocusTarget({ threadRef: ref, terminalId: "a", focus });
 
     panel.activateSurface(ref, terminalSurfaceId);
-    panel.closeSurface(ref, diffSurfaceId);
+    panel.closeSurface(ref, otherSurfaceId);
     focusPanelTerminalAfterClose(ref, terminalSurfaceId);
     expect(focus).not.toHaveBeenCalled();
 
-    panel.open(ref, "diff");
-    const reopenedDiffId = selectThreadRightPanelState(
+    panel.open(ref, "pull-requests");
+    const reopenedOtherId = selectThreadRightPanelState(
       useRightPanelStore.getState().byThreadKey,
       ref,
     ).activeSurfaceId!;
-    panel.closeSurface(ref, reopenedDiffId);
-    focusPanelTerminalAfterClose(ref, reopenedDiffId);
+    panel.closeSurface(ref, reopenedOtherId);
+    focusPanelTerminalAfterClose(ref, reopenedOtherId);
     expect(focus).toHaveBeenCalledTimes(1);
     unregister();
   });

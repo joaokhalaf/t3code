@@ -274,7 +274,7 @@ it("opens a repository-relative file from a nested project without a remote", as
   await userEvent.click(screen.getByText(path, { exact: true }));
   expect(
     selectThreadRightPanelState(useRightPanelStore.getState().byThreadKey, context.threadRef),
-  ).toMatchObject({ activeSurfaceId: "file:back\\slash.txt" });
+  ).toMatchObject({ centerSurfaceId: "file:back\\slash.txt" });
 });
 
 it.each([false, true])(
@@ -412,6 +412,6 @@ it("opens a file from a tool call's diff by the path its agent recorded", async 
   await vi.waitFor(() =>
     expect(
       selectThreadRightPanelState(useRightPanelStore.getState().byThreadKey, context.threadRef),
-    ).toMatchObject({ activeSurfaceId: "file:src/a.ts" }),
+    ).toMatchObject({ centerSurfaceId: "file:src/a.ts" }),
   );
 });

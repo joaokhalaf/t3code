@@ -1,4 +1,9 @@
 {
+  "d85877d9ef77c50c": "Änderungen",
+  "cba3e832ece50257": "Dateien",
+  "c746f3d8fde4d4dc": "Geöffnete Ansichten",
+  "afda415d2d75a5d3": "Chat",
+  "6d13c68fa4fce9f7": "{name} schließen",
   "5a133ffc12889051": "Kontextfenster: {percent}% belegt, {tokens} Tokens",
   "b37ab3d4575fe11e": "Kontextfenster: {tokens} Tokens",
   "a3d040c4ef4fc6e9": "Über dem Tempo",
@@ -87,7 +92,6 @@
   "cc84bfe0ee5d0174": "Projekte",
   "81d0d1e78b196630": "Allgemein",
   "fa19046edd6cfbd4": "Darstellung",
-  "afda415d2d75a5d3": "Chat",
   "4beeab8d1814b251": "Diffs & Pull Requests",
   "3b958faa12d54484": "Tastenkürzel",
   "1a6679bbe62703b2": "SnapShots",

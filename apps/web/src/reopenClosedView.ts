@@ -5,6 +5,7 @@ import type { ClosedView, ClosedViewEntry } from "./closedViewStore";
 import type { PullRequestListPreferences } from "./components/pullRequest/pullRequestListPreferences";
 import { openPreviewSession } from "./components/preview/openPreviewSession";
 import {
+  isCenterSurface,
   rightPanelHostRef,
   type RightPanelSurface,
   selectThreadRightPanelState,
@@ -40,7 +41,9 @@ export function planNextReopen(
     }
     const alreadyOpen =
       entry.kind === "panel-tab"
-        ? owner.panel.isOpen && owner.panel.surfaces.some((s) => s.id === entry.surface.id)
+        ? isCenterSurface(entry.surface)
+          ? owner.panel.centerSurfaceId === entry.surface.id
+          : owner.panel.isOpen && owner.panel.surfaces.some((s) => s.id === entry.surface.id)
         : owner.panel.surfaces.some(
             (s) => s.kind === "preview" && s.resourceId === entry.snapshot.tabId,
           );

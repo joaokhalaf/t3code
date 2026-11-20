@@ -201,7 +201,7 @@ describe("root reopen shortcut", () => {
     });
     expect(state.openPreview).toHaveBeenCalledOnce();
     expect(
-      selectThreadRightPanelState(useRightPanelStore.getState().byThreadKey, ref).activeSurfaceId,
+      selectThreadRightPanelState(useRightPanelStore.getState().byThreadKey, ref).centerSurfaceId,
     ).toBe("diff");
     expect(useClosedViewStore.getState().entries).toEqual([]);
   });
@@ -249,7 +249,7 @@ describe("root reopen shortcut", () => {
         menuAction?.("view.reopenClosed");
       });
       expect(
-        selectThreadRightPanelState(useRightPanelStore.getState().byThreadKey, ref).activeSurfaceId,
+        selectThreadRightPanelState(useRightPanelStore.getState().byThreadKey, ref).centerSurfaceId,
       ).toBe("diff");
       expect(useClosedViewStore.getState().entries.map((entry) => entry.id)).toEqual([failed]);
       state.workspaceAvailable = true;
@@ -257,11 +257,9 @@ describe("root reopen shortcut", () => {
       await act(() => {
         press();
       });
-      expect(
-        selectThreadRightPanelState(useRightPanelStore.getState().byThreadKey, ref).activeSurfaceId,
-      ).toBe(
-        kind === "browser" ? "browser:new-tab" : kind === "file" ? "file:src/app.ts" : "files",
-      );
+      const panel = selectThreadRightPanelState(useRightPanelStore.getState().byThreadKey, ref);
+      if (kind === "browser") expect(panel.activeSurfaceId).toBe("browser:new-tab");
+      else expect(panel.centerSurfaceId).toBe(kind === "file" ? "file:src/app.ts" : "files");
       expect(useClosedViewStore.getState().entries).toEqual([]);
     },
   );

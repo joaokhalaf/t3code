@@ -609,6 +609,11 @@ it("a shortcut conditioned on rightPanelOpen sees the thread's open right panel"
   await expect.element(toggle).toHaveAttribute("aria-pressed", "false");
   await toggle.click();
   await page.getByRole("button", { name: /^Files/ }).click();
+  // Files open over the conversation; the Chat tab brings the composer back.
+  await page
+    .getByRole("navigation", { name: "Open views" })
+    .getByRole("button", { name: "Chat", exact: true })
+    .click();
   await composer.click();
   await userEvent.keyboard("{Control>}t{/Control}");
   await expect.element(page.getByRole("menuitem", { name: /Files/ })).toBeVisible();
