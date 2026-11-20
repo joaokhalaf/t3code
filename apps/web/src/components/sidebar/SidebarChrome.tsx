@@ -1,4 +1,11 @@
-import { ArrowLeftIcon, ArrowRightIcon, ChartNoAxesColumnIcon, SettingsIcon } from "lucide-react";
+import {
+  ArrowLeftIcon,
+  ArrowRightIcon,
+  ChartNoAxesColumnIcon,
+  LayoutDashboardIcon,
+  SettingsIcon,
+} from "lucide-react";
+import { useGT } from "gt-react";
 import type { ReactNode } from "react";
 import { memo } from "react";
 import { Link, useLocation, useNavigate } from "@tanstack/react-router";
@@ -240,6 +247,7 @@ const SidebarUtilityMenu = memo(function SidebarUtilityMenu({
     select: (location) => isSidebarUtilityPage(location.pathname),
   });
   const pullRequestsSupported = usePullRequestsSupported();
+  const gt = useGT();
   const closeMobileSidebar = () => {
     if (isMobile) {
       setOpenMobile(false);
@@ -255,6 +263,11 @@ const SidebarUtilityMenu = memo(function SidebarUtilityMenu({
   const handleSettingsClick = () => {
     closeMobileSidebar();
     void navigate({ to: "/settings" });
+  };
+
+  const handleDashboardClick = () => {
+    closeMobileSidebar();
+    void navigate({ to: "/dashboard" });
   };
 
   const handleUsageClick = () => {
@@ -282,6 +295,12 @@ const SidebarUtilityMenu = memo(function SidebarUtilityMenu({
               onClick={handlePullRequestsClick}
             />
           ) : null}
+          <SidebarUtilityItem
+            icon={<LayoutDashboardIcon />}
+            label={gt("Dashboard")}
+            active={pathname === "/dashboard"}
+            onClick={handleDashboardClick}
+          />
           <SidebarUtilityItem
             icon={<ChartNoAxesColumnIcon />}
             label="Usage"
