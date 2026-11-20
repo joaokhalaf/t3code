@@ -12237,5 +12237,17 @@
   "ea52810c3d4d79db": "Nutzungslimits: {usage}",
   "a805e410d7962cb5": "{label}: {percent}% belegt",
   "c746f3d8fde4d4dc": "Geöffnete Ansichten",
-  "6d13c68fa4fce9f7": "{name} schließen"
+  "6d13c68fa4fce9f7": "{name} schließen",
+  "ce7fc653de2a91ef": "{environment}: {message}",
+  "b6846feae329c12a": "Dashboard-Navigationspfad",
+  "d71403f2d49ec76a": "Dashboard aktualisieren",
+  "ab2e531ff698e8e5": "Kein Projekt hier hat einen Pull-Request-Host, den dieser Server lesen kann.",
+  "8046929ce5e1fea0": "Keine Pull Requests warten auf dein Review.",
+  "0f9a7a0c7678aa54": "Deine offenen PRs",
+  "8b17b2a6decbf310": "Du hast keine offenen Pull Requests.",
+  "f2b4af56025672c8": "Dashboard",
+  "18b272d663cb78f0": "Dashboard aktualisieren",
+  "178e0f62e7514791": "Alle anzeigen",
+  "79f85e691dc8d5cc": "Einige Projekte konnten nicht gelesen werden, daher sind diese Listen möglicherweise unvollständig.",
+  "e57077856e95f319": "Dashboard"
 }

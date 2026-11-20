@@ -12237,5 +12237,17 @@
   "ea52810c3d4d79db": "Limites d'utilisation : {usage}",
   "a805e410d7962cb5": "{label} : {percent} % utilisés",
   "c746f3d8fde4d4dc": "Vues ouvertes",
-  "6d13c68fa4fce9f7": "Fermer {name}"
+  "6d13c68fa4fce9f7": "Fermer {name}",
+  "ce7fc653de2a91ef": "{environment} : {message}",
+  "b6846feae329c12a": "Fil d’Ariane du tableau de bord",
+  "d71403f2d49ec76a": "Actualiser le tableau de bord",
+  "ab2e531ff698e8e5": "Aucun projet ici n’a d’hôte de pull requests que ce serveur peut lire.",
+  "8046929ce5e1fea0": "Aucune pull request n’attend votre revue.",
+  "0f9a7a0c7678aa54": "Vos PR ouvertes",
+  "8b17b2a6decbf310": "Vous n’avez aucune pull request ouverte.",
+  "f2b4af56025672c8": "Tableau de bord",
+  "18b272d663cb78f0": "Actualiser le tableau de bord",
+  "178e0f62e7514791": "Tout afficher",
+  "79f85e691dc8d5cc": "Certains projets n’ont pas pu être lus, ces listes peuvent donc être incomplètes.",
+  "e57077856e95f319": "Tableau de bord"
 }

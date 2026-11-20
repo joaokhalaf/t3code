@@ -12236,5 +12236,17 @@
   "ea52810c3d4d79db": "Limites de uso: {usage}",
   "a805e410d7962cb5": "{label}: {percent}% usado",
   "c746f3d8fde4d4dc": "Visualizações abertas",
-  "6d13c68fa4fce9f7": "Fechar {name}"
+  "6d13c68fa4fce9f7": "Fechar {name}",
+  "ce7fc653de2a91ef": "{environment}: {message}",
+  "b6846feae329c12a": "Navegação do painel",
+  "d71403f2d49ec76a": "Atualizar painel",
+  "ab2e531ff698e8e5": "Nenhum projeto aqui tem um host de pull requests que este servidor consiga ler.",
+  "8046929ce5e1fea0": "Nenhum pull request aguarda sua revisão.",
+  "0f9a7a0c7678aa54": "Seus PRs abertos",
+  "8b17b2a6decbf310": "Você não tem pull requests abertos.",
+  "f2b4af56025672c8": "Painel",
+  "18b272d663cb78f0": "Atualizar painel",
+  "178e0f62e7514791": "Ver todos",
+  "79f85e691dc8d5cc": "Alguns projetos não puderam ser lidos, então estas listas podem estar incompletas.",
+  "e57077856e95f319": "Painel"
 }
