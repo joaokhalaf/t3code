@@ -12177,5 +12177,7 @@
   "1b7c524fccf06537": "응답 필요",
   "8cbd5f5fc2dbac2d": "주의가 필요한 스레드가 없습니다",
   "5a133ffc12889051": "컨텍스트 창: {percent}% 사용, {tokens} 토큰",
-  "b37ab3d4575fe11e": "컨텍스트 창: {tokens} 토큰"
+  "b37ab3d4575fe11e": "컨텍스트 창: {tokens} 토큰",
+  "ea52810c3d4d79db": "사용 한도: {usage}",
+  "a805e410d7962cb5": "{label}: {percent}% 사용"
 }

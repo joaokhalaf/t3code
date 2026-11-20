@@ -1,5 +1,6 @@
 import type { ChatComposerProps } from "./ChatComposer";
 import { ComposerContextUsage } from "./ComposerContextUsage";
+import { ComposerUsageText } from "./ComposerUsageText";
 import type { PromptUltrathink } from "./TraitsPicker";
 import type { ProviderInstanceEntry } from "../../providerInstances";
 import { type AppModelOption } from "../../modelSelection";
@@ -89,6 +90,7 @@ export function ComposerControlsBar(props: {
   modelPickerIconClassName: string | undefined;
   getModelDisabledReason: ChatComposerProps["getModelDisabledReason"];
   contextWindow: ChatComposerProps["contextWindow"];
+  usageLimits: ChatComposerProps["usageLimits"];
 }) {
   const {
     environmentId,
@@ -171,6 +173,7 @@ export function ComposerControlsBar(props: {
     ...(props.contextWindow
       ? [{ id: "context", content: <ComposerContextUsage usage={props.contextWindow} /> }]
       : []),
+    { id: "limits", content: <ComposerUsageText usage={props.usageLimits} /> },
     ...(showModeBlock
       ? [
           {
