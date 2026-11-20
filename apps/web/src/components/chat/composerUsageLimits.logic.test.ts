@@ -48,7 +48,7 @@ const weekly = {
 } as const;
 
 describe("composer usage limits", () => {
-  it("reports each window as percent used with its upcoming reset and pace", () => {
+  it("reports only the session window as percent used with its upcoming reset and pace", () => {
     const windows = selectComposerUsageWindows(
       {
         providerInstanceId: instanceId,
@@ -68,16 +68,8 @@ describe("composer usage limits", () => {
         resetsInMs: 2 * 60 * 60 * 1000,
         pace: "under",
       },
-      {
-        id: "seven_day",
-        label: "Weekly",
-        usedPercent: 60,
-        resetsAt: null,
-        resetsInMs: null,
-        pace: null,
-      },
     ]);
-    expect(formatComposerUsageWindows(windows)).toBe("5h 28% · Weekly 60%");
+    expect(formatComposerUsageWindows(windows)).toBe("28%");
   });
 
   it("shows nothing when limits are unavailable or not selected", () => {

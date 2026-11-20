@@ -19,9 +19,7 @@ export function ComposerContextUsage({ usage }: { readonly usage: ContextWindowS
       data-composer-context-usage
       className="shrink-0 px-1 text-xs text-muted-foreground tabular-nums"
     >
-      <span aria-hidden>
-        {text.percent !== null ? `${text.percent}% · ${text.tokens}` : text.tokens}
-      </span>
+      <span aria-hidden>{text.tokens}</span>
       <span className="sr-only">{description}</span>
     </span>
   );
