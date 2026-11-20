@@ -1,4 +1,9 @@
 {
+  "d85877d9ef77c50c": "Changes",
+  "cba3e832ece50257": "Files",
+  "c746f3d8fde4d4dc": "Open views",
+  "afda415d2d75a5d3": "Chat",
+  "6d13c68fa4fce9f7": "Close {name}",
   "5a133ffc12889051": "Context window: {percent}% used, {tokens} tokens",
   "b37ab3d4575fe11e": "Context window: {tokens} tokens",
   "a3d040c4ef4fc6e9": "Ahead of pace",
@@ -87,7 +92,6 @@
   "cc84bfe0ee5d0174": "Projects",
   "81d0d1e78b196630": "General",
   "fa19046edd6cfbd4": "Appearance",
-  "afda415d2d75a5d3": "Chat",
   "4beeab8d1814b251": "Diffs & pull requests",
   "3b958faa12d54484": "Keybindings",
   "1a6679bbe62703b2": "SnapShots",

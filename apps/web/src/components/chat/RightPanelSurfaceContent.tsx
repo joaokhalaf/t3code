@@ -1,4 +1,5 @@
 import type {
+  DiffLayout,
   EditorId,
   EnvironmentId,
   PreviewAnnotationPayload,
@@ -79,6 +80,7 @@ export function RightPanelSurfaceContent(props: {
   readonly pullRequest: RightPanelPullRequestProps;
   readonly files: RightPanelFileProps;
   readonly sideChatParentPanel: SideChatParentPanel;
+  readonly diffLayoutOverride?: DiffLayout | undefined;
 }) {
   const { surface, threadRef, visible, onCloseSurface } = props;
   if (surface === null) return null;
@@ -114,6 +116,7 @@ export function RightPanelSurfaceContent(props: {
             composerDraftTarget={props.composerDraftTarget}
             workspaceMutationId={props.workspaceMutationId}
             visible={visible}
+            layoutOverride={props.diffLayoutOverride}
           />
         </Suspense>
       );

@@ -1,4 +1,9 @@
 {
+  "d85877d9ef77c50c": "Cambios",
+  "cba3e832ece50257": "Archivos",
+  "c746f3d8fde4d4dc": "Vistas abiertas",
+  "afda415d2d75a5d3": "Chat",
+  "6d13c68fa4fce9f7": "Cerrar {name}",
   "5a133ffc12889051": "Ventana de contexto: {percent}% usado, {tokens} tokens",
   "b37ab3d4575fe11e": "Ventana de contexto: {tokens} tokens",
   "a3d040c4ef4fc6e9": "Por encima del ritmo",
@@ -87,7 +92,6 @@
   "cc84bfe0ee5d0174": "Proyectos",
   "81d0d1e78b196630": "General",
   "fa19046edd6cfbd4": "Apariencia",
-  "afda415d2d75a5d3": "Chat",
   "4beeab8d1814b251": "Diffs y pull requests",
   "3b958faa12d54484": "Atajos de teclado",
   "1a6679bbe62703b2": "SnapShots",
