@@ -42,18 +42,9 @@ export function ThreadVerification({
   const canOperate = useEnvironmentScope(threadRef.environmentId, AuthOrchestrationOperateScope);
   return (
     <Dialog open={open} onOpenChange={setOpen}>
-      <DialogTrigger
-        render={
-          <Button variant="ghost" size="sm" className="shrink-0 [-webkit-app-region:no-drag]" />
-        }
-      >
+      <DialogTrigger render={<Button variant="outline" size="sm" className="w-full" />}>
         <ClipboardCheckIcon aria-hidden className="size-4" />
-        <span className="hidden sm:inline">
-          <T>Verify changes</T>
-        </span>
-        <span className="sr-only sm:hidden">
-          <T>Verify changes</T>
-        </span>
+        <T>Verify changes</T>
       </DialogTrigger>
       <DialogPopup className="flex max-h-[85dvh] w-full max-w-4xl flex-col overflow-hidden">
         <DialogHeader>

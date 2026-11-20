@@ -20,7 +20,7 @@ import ProjectScriptsControl, {
   type ProjectScriptActionResult,
 } from "../ProjectScriptsControl";
 import { T, useGT } from "gt-react";
-import { useState, type ComponentProps } from "react";
+import { useState, type ComponentProps, type ReactNode } from "react";
 import { ThreadDetailsChecks } from "./ThreadDetailsChecks";
 import { ThreadDetailsMcp } from "./ThreadDetailsMcp";
 import { ThreadDetailsCard } from "./ThreadDetailsCard";
@@ -84,6 +84,7 @@ interface ThreadDetailsPanelProps extends Pick<
   onCheckoutPullRequestRequest?: (reference: string) => void;
   onComposerFocusRequest: () => void;
   onOpenChanges?: () => void;
+  verification?: ReactNode;
   onRunProjectScript: (script: ProjectScript) => void;
   onAddProjectScript: (input: NewProjectScriptInput) => Promise<ProjectScriptActionResult>;
   onUpdateProjectScript: (
@@ -260,6 +261,7 @@ export function ThreadDetailsPanel(props: ThreadDetailsPanelProps) {
                         {...(props.onOpenChanges ? { onOpenChanges: props.onOpenChanges } : {})}
                       />
                     ) : null}
+                    {props.verification ? <div className="pt-2">{props.verification}</div> : null}
                   </div>
                 </ThreadDetailsSection>
               ) : null}
