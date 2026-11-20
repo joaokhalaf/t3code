@@ -126,6 +126,8 @@ export interface ThreadRightPanelState {
   dismissedDeviceSurfaceIds?: string[];
   maximized?: true;
   proactiveDiffTurnId?: RunId;
+  /** The center tab replacing the conversation; absent or null shows the chat. */
+  centerSurfaceId?: string | null;
 }
 
 export interface ThreadPanelVisibility {
@@ -152,6 +154,7 @@ interface RightPanelStoreState {
     expectedUserActionRevision: number,
     activateExisting?: boolean,
   ) => boolean;
+  showChat: (ref: ScopedThreadRef) => void;
   open: (
     ref: ScopedThreadRef,
     kind: Exclude<RightPanelKind, "file" | "terminal" | "pull-request" | "issue" | "side-chat">,
@@ -372,18 +375,46 @@ const withoutReveal = (surface: RightPanelSurface): RightPanelSurface => {
   return rest;
 };
 
+/** Files and diffs open as tabs in place of the conversation, not in the right panel. */
+export const isCenterSurface = (surface: RightPanelSurface): boolean =>
+  surface.kind === "file" || surface.kind === "files" || surface.kind === "diff";
+
+const panelSurfaces = (surfaces: readonly RightPanelSurface[]) =>
+  surfaces.filter((surface) => !isCenterSurface(surface));
+
+const centerSurfaces = (surfaces: readonly RightPanelSurface[]) => surfaces.filter(isCenterSurface);
+
+/** The tab that takes over when `surfaceId` closes: the one after it, else the one before. */
+const neighborAfterClose = (
+  surfaces: readonly RightPanelSurface[],
+  surfaceId: string,
+): RightPanelSurface | null => {
+  const index = surfaces.findIndex((surface) => surface.id === surfaceId);
+  const remaining = surfaces.filter((surface) => surface.id !== surfaceId);
+  return remaining[Math.min(index, remaining.length - 1)] ?? null;
+};
+
+const showSurface = (
+  current: ThreadRightPanelState,
+  surface: RightPanelSurface,
+): ThreadRightPanelState =>
+  isCenterSurface(surface)
+    ? { ...current, centerSurfaceId: surface.id }
+    : { ...current, isOpen: true, activeSurfaceId: surface.id };
+
 const upsertSurface = (
   current: ThreadRightPanelState,
   surface: RightPanelSurface,
-  activate = true,
-): ThreadRightPanelState => ({
-  ...current,
-  isOpen: true,
-  surfaces: current.surfaces.some((entry) => entry.id === surface.id)
-    ? current.surfaces
-    : [...current.surfaces, surface],
-  activeSurfaceId: activate ? surface.id : current.activeSurfaceId,
-});
+): ThreadRightPanelState =>
+  showSurface(
+    {
+      ...current,
+      surfaces: current.surfaces.some((entry) => entry.id === surface.id)
+        ? current.surfaces
+        : [...current.surfaces, surface],
+    },
+    surface,
+  );
 
 const updateThreadStateMap = (
   byThreadKey: Record<string, ThreadRightPanelState>,
@@ -397,7 +428,8 @@ const updateThreadStateMap = (
     next.activeSurfaceId === null &&
     next.surfaces.length === 0 &&
     !next.dismissedDeviceSurfaceIds?.length &&
-    next.proactiveDiffTurnId === undefined
+    next.proactiveDiffTurnId === undefined &&
+    !next.centerSurfaceId
   ) {
     if (!(threadKey in byThreadKey)) return byThreadKey;
     const { [threadKey]: _removed, ...rest } = byThreadKey;
@@ -532,10 +564,10 @@ const userActionOnThread = (
     : {}),
 });
 
-const activated = (current: ThreadRightPanelState, surfaceId: string): ThreadRightPanelState =>
-  current.surfaces.some((surface) => surface.id === surfaceId)
-    ? { ...current, isOpen: true, activeSurfaceId: surfaceId }
-    : current;
+const activated = (current: ThreadRightPanelState, surfaceId: string): ThreadRightPanelState => {
+  const surface = current.surfaces.find((entry) => entry.id === surfaceId);
+  return surface ? showSurface(current, surface) : current;
+};
 
 const closeAction = (
   state: RightPanelStoreState,
@@ -661,21 +693,30 @@ export function migratePersistedRightPanelState(persistedState: unknown): {
                   })
                 : [];
               const rawActiveSurfaceId = validThreadState?.activeSurfaceId;
-              const persistedActiveSurfaceId = surfaces.some(
+              const panel = panelSurfaces(surfaces);
+              const center = centerSurfaces(surfaces);
+              const rawCenterSurfaceId = validThreadState?.centerSurfaceId;
+              // Before v15 files and diffs were right panel tabs; the one on screen moves to the center.
+              const centerSurfaceId =
+                center.find((surface) => surface.id === rawCenterSurfaceId)?.id ??
+                (rawCenterSurfaceId === undefined && validThreadState?.isOpen !== false
+                  ? center.find((surface) => surface.id === rawActiveSurfaceId)?.id
+                  : undefined);
+              const persistedActiveSurfaceId = panel.some(
                 (surface) => surface.id === rawActiveSurfaceId,
               )
                 ? (rawActiveSurfaceId ?? null)
                 : rawActiveSurfaceId === "pull-request"
-                  ? (surfaces.find((surface) => surface.kind === "pull-request")?.id ?? null)
+                  ? (panel.find((surface) => surface.kind === "pull-request")?.id ?? null)
                   : null;
               const isOpen =
-                surfaces.length > 0 &&
+                panel.length > 0 &&
                 (typeof validThreadState?.isOpen === "boolean"
                   ? validThreadState.isOpen
                   : persistedActiveSurfaceId !== null);
               const activeSurfaceId =
                 persistedActiveSurfaceId ??
-                (isOpen || rawActiveSurfaceId === "agents" ? (surfaces[0]?.id ?? null) : null);
+                (isOpen || rawActiveSurfaceId === "agents" ? (panel[0]?.id ?? null) : null);
               return [
                 threadKey,
                 {
@@ -694,6 +735,7 @@ export function migratePersistedRightPanelState(persistedState: unknown): {
                       }
                     : {}),
                   ...(validThreadState?.maximized === true ? { maximized: true as const } : {}),
+                  ...(centerSurfaceId === undefined ? {} : { centerSurfaceId }),
                 },
               ];
             }),
@@ -750,17 +792,10 @@ export const useRightPanelStore = create<RightPanelStoreState>()(
           if (request.kind === "diff") {
             const current = selectThreadRightPanelState(state.byThreadKey, ref);
             if (current.proactiveDiffTurnId === request.turnId) return state;
-            const activePanel = selectActiveRightPanel(state.byThreadKey, ref);
-            const pullRequestActive =
-              activePanel === "pull-request" || activePanel === "pull-requests";
-            opened =
-              (state.userActionRevisionByThreadKey[threadKey] ?? 0) ===
-                expectedUserActionRevision &&
-              activePanel !== "diff" &&
-              !pullRequestActive;
-            // Record the offer even when refused, so a revisit does not retry this turn.
+            // Changes take over the conversation, so they open only on request. Record the
+            // refused offer so a revisit does not retry this turn.
             return automaticUpdate(state, threadKey, (thread) => ({
-              ...(opened ? upsertSurface(thread, singletonSurface("diff")) : thread),
+              ...thread,
               proactiveDiffTurnId: request.turnId,
             }));
           }
@@ -783,6 +818,12 @@ export const useRightPanelStore = create<RightPanelStoreState>()(
         });
         return opened;
       },
+      showChat: (ref) =>
+        set((state) =>
+          userAction(state, scopedThreadKey(ref), (current) =>
+            current.centerSurfaceId ? { ...current, centerSurfaceId: null } : current,
+          ),
+        ),
       open: (ref, kind) =>
         set((state) =>
           userAction(state, scopedThreadKey(ref), (current) => {
@@ -938,8 +979,7 @@ export const useRightPanelStore = create<RightPanelStoreState>()(
             );
             return {
               ...current,
-              isOpen: true,
-              activeSurfaceId: surface.id,
+              centerSurfaceId: surface.id,
               surfaces: existing
                 ? withoutStandaloneExplorer.map((entry) =>
                     entry.id === surface.id ? surface : entry,
@@ -971,7 +1011,7 @@ export const useRightPanelStore = create<RightPanelStoreState>()(
                 ? []
                 : [surface];
             });
-            return { ...current, isOpen: true, activeSurfaceId: target.id, surfaces };
+            return showSurface({ ...current, surfaces }, target);
           }),
         ),
       openAttachment: (ref, attachment) =>
@@ -1035,12 +1075,11 @@ export const useRightPanelStore = create<RightPanelStoreState>()(
             if (!surface || surface.kind !== "terminal") return current;
             const terminalIds = surface.terminalIds.filter((id) => id !== terminalId);
             if (terminalIds.length === 0) {
-              const index = current.surfaces.findIndex((entry) => entry.id === surfaceId);
               const surfaces = current.surfaces.filter((entry) => entry.id !== surfaceId);
-              const fallback = surfaces[Math.min(index, surfaces.length - 1)] ?? null;
+              const fallback = neighborAfterClose(panelSurfaces(current.surfaces), surfaceId);
               return {
                 ...current,
-                isOpen: surfaces.length > 0 && current.isOpen,
+                isOpen: panelSurfaces(surfaces).length > 0 && current.isOpen,
                 surfaces,
                 activeSurfaceId:
                   current.activeSurfaceId === surfaceId
@@ -1076,18 +1115,23 @@ export const useRightPanelStore = create<RightPanelStoreState>()(
       closeSurface: (ref, surfaceId) =>
         set((state) =>
           closeAction(state, scopedThreadKey(ref), (current) => {
-            const index = current.surfaces.findIndex((surface) => surface.id === surfaceId);
-            if (index < 0) return current;
+            const closing = current.surfaces.find((surface) => surface.id === surfaceId);
+            if (!closing) return current;
             const surfaces = current.surfaces.filter((surface) => surface.id !== surfaceId);
+            if (isCenterSurface(closing)) {
+              if (current.centerSurfaceId !== surfaceId) return { ...current, surfaces };
+              const fallback = neighborAfterClose(centerSurfaces(current.surfaces), surfaceId);
+              return { ...current, surfaces, centerSurfaceId: fallback?.id ?? null };
+            }
             const next = {
               ...current,
-              isOpen: surfaces.length > 0 && current.isOpen,
+              isOpen: panelSurfaces(surfaces).length > 0 && current.isOpen,
               surfaces,
             };
             if (current.activeSurfaceId !== surfaceId) {
               return next;
             }
-            const fallback = surfaces[Math.min(index, surfaces.length - 1)] ?? null;
+            const fallback = neighborAfterClose(panelSurfaces(current.surfaces), surfaceId);
             return {
               ...next,
               activeSurfaceId: fallback?.id ?? null,
@@ -1098,11 +1142,16 @@ export const useRightPanelStore = create<RightPanelStoreState>()(
         set((state) =>
           closeAction(state, scopedThreadKey(ref), (current) => {
             const surface = current.surfaces.find((entry) => entry.id === surfaceId);
-            if (!surface || current.surfaces.length === 1) return current;
+            if (
+              !surface ||
+              isCenterSurface(surface) ||
+              panelSurfaces(current.surfaces).length === 1
+            )
+              return current;
             return {
               ...current,
               isOpen: true,
-              surfaces: [surface],
+              surfaces: [surface, ...centerSurfaces(current.surfaces)],
               activeSurfaceId: surface.id,
             };
           }),
@@ -1110,9 +1159,10 @@ export const useRightPanelStore = create<RightPanelStoreState>()(
       closeSurfacesToRight: (ref, surfaceId) =>
         set((state) =>
           closeAction(state, scopedThreadKey(ref), (current) => {
-            const index = current.surfaces.findIndex((surface) => surface.id === surfaceId);
-            if (index < 0 || index === current.surfaces.length - 1) return current;
-            const surfaces = current.surfaces.slice(0, index + 1);
+            const panel = panelSurfaces(current.surfaces);
+            const index = panel.findIndex((surface) => surface.id === surfaceId);
+            if (index < 0 || index === panel.length - 1) return current;
+            const surfaces = [...panel.slice(0, index + 1), ...centerSurfaces(current.surfaces)];
             const activeStillExists = surfaces.some(
               (surface) => surface.id === current.activeSurfaceId,
             );
@@ -1126,19 +1176,25 @@ export const useRightPanelStore = create<RightPanelStoreState>()(
       closeAllSurfaces: (ref) =>
         set((state) =>
           closeAction(state, scopedThreadKey(ref), (current) =>
-            current.surfaces.length === 0
+            panelSurfaces(current.surfaces).length === 0
               ? current
-              : { ...current, isOpen: false, surfaces: [], activeSurfaceId: null },
+              : {
+                  ...current,
+                  isOpen: false,
+                  surfaces: centerSurfaces(current.surfaces),
+                  activeSurfaceId: null,
+                },
           ),
         ),
       moveSurface: (ref, surfaceId, toIndex) =>
         set((state) =>
           updateThread(state, scopedThreadKey(ref), (current) => {
-            const fromIndex = current.surfaces.findIndex((surface) => surface.id === surfaceId);
+            // `toIndex` counts right panel tabs only.
+            const surfaces = panelSurfaces(current.surfaces);
+            const fromIndex = surfaces.findIndex((surface) => surface.id === surfaceId);
             if (fromIndex < 0 || fromIndex === toIndex) return current;
-            const surfaces = [...current.surfaces];
             surfaces.splice(toIndex, 0, ...surfaces.splice(fromIndex, 1));
-            return { ...current, surfaces };
+            return { ...current, surfaces: [...surfaces, ...centerSurfaces(current.surfaces)] };
           }),
         ),
       reconcileBrowserSurfaces: (ref, tabIds, hiddenTabIds) =>
@@ -1162,7 +1218,7 @@ export const useRightPanelStore = create<RightPanelStoreState>()(
             // A closed session tab was the last surface: hide the panel rather than leave it on
             // the empty picker, as a user close would. A dropped `browser:new` placeholder does not count.
             const closedLastSessionTab =
-              surfaces.length === 0 &&
+              panelSurfaces(surfaces).length === 0 &&
               current.surfaces.some((surface) => surface.kind === "preview" && surface.resourceId);
             return {
               ...current,
@@ -1170,7 +1226,7 @@ export const useRightPanelStore = create<RightPanelStoreState>()(
               surfaces,
               activeSurfaceId: activeStillExists
                 ? current.activeSurfaceId
-                : (fallbackBrowser?.id ?? surfaces[0]?.id ?? null),
+                : (fallbackBrowser?.id ?? panelSurfaces(surfaces)[0]?.id ?? null),
             };
           }),
         ),
@@ -1184,16 +1240,15 @@ export const useRightPanelStore = create<RightPanelStoreState>()(
                 (surface.kind !== "file" || surface.attachment !== undefined),
             );
             if (surfaces.length === current.surfaces.length) return current;
-            const activeStillExists = surfaces.some(
-              (surface) => surface.id === current.activeSurfaceId,
+            const centerStillExists = surfaces.some(
+              (surface) => surface.id === current.centerSurfaceId,
             );
             return {
               ...current,
-              isOpen: surfaces.length > 0 ? current.isOpen : false,
               surfaces,
-              activeSurfaceId: activeStillExists
-                ? current.activeSurfaceId
-                : (surfaces.at(-1)?.id ?? null),
+              centerSurfaceId: centerStillExists
+                ? (current.centerSurfaceId ?? null)
+                : (centerSurfaces(surfaces).at(-1)?.id ?? null),
             };
           }),
         ),
@@ -1230,6 +1285,11 @@ export const useRightPanelStore = create<RightPanelStoreState>()(
             const active = current.surfaces.find(
               (surface) => surface.id === current.activeSurfaceId,
             );
+            if (kind === "diff" || kind === "files") {
+              return current.centerSurfaceId === kind
+                ? { ...current, centerSurfaceId: null }
+                : upsertSurface(current, singletonSurface(kind));
+            }
             if (current.isOpen && active?.kind === kind) {
               return { ...current, isOpen: false };
             }
@@ -1394,4 +1454,13 @@ export function selectSelectedRightPanelSurface(
 ): RightPanelSurface | null {
   const state = selectThreadRightPanelState(byThreadKey, ref);
   return state.surfaces.find((surface) => surface.id === state.activeSurfaceId) ?? null;
+}
+
+export function selectActiveCenterSurface(
+  byThreadKey: Record<string, ThreadRightPanelState>,
+  ref: ScopedThreadRef | null | undefined,
+): RightPanelSurface | null {
+  const state = selectThreadRightPanelState(byThreadKey, ref);
+  if (!state.centerSurfaceId) return null;
+  return state.surfaces.find((surface) => surface.id === state.centerSurfaceId) ?? null;
 }

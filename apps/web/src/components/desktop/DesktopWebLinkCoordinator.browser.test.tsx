@@ -102,7 +102,7 @@ import { AppAtomRegistryProvider, appAtomRegistry } from "../../rpc/atomRegistry
 import { allReachableShellsLiveAtom } from "../../state/shell";
 import { selectThreadDiffPanelSelection, useDiffPanelStore } from "../../diffPanelStore";
 import {
-  selectActiveRightPanel,
+  selectActiveCenterSurface,
   selectActiveRightPanelSurface,
   useRightPanelStore,
 } from "../../rightPanelStore";
@@ -231,9 +231,9 @@ it.each([
   ];
   await act(async () => appAtomRegistry.set(discoverySettled, true));
   await vi.waitFor(() => {
-    expect(selectActiveRightPanel(useRightPanelStore.getState().byThreadKey, threadRef)).toBe(
-      "diff",
-    );
+    expect(
+      selectActiveCenterSurface(useRightPanelStore.getState().byThreadKey, threadRef)?.kind,
+    ).toBe("diff");
   });
   expect(
     selectThreadDiffPanelSelection(useDiffPanelStore.getState().byThreadKey, threadRef),

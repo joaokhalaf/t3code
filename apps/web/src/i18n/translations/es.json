@@ -12230,5 +12230,7 @@
   "5a133ffc12889051": "Ventana de contexto: {percent}% usado, {tokens} tokens",
   "b37ab3d4575fe11e": "Ventana de contexto: {tokens} tokens",
   "ea52810c3d4d79db": "Límites de uso: {usage}",
-  "a805e410d7962cb5": "{label}: {percent}% usado"
+  "a805e410d7962cb5": "{label}: {percent}% usado",
+  "c746f3d8fde4d4dc": "Vistas abiertas",
+  "6d13c68fa4fce9f7": "Cerrar {name}"
 }

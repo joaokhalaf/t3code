@@ -15,6 +15,7 @@ import { focusPanelTerminalAfterClose } from "../lib/terminalFocus";
 import { readLocalApi } from "../localApi";
 import { setActivePreviewTab, useThreadPreviewState } from "../previewStateStore";
 import {
+  isCenterSurface,
   selectActiveRightPanelSurface,
   selectThreadRightPanelState,
   useRightPanelStore,
@@ -48,9 +49,10 @@ export function useRightPanelSurfaceClose(input: {
   const previewState = useThreadPreviewState(threadRef);
   const terminalActions = useThreadTerminalActions(threadRef);
   const storeCloseTerminal = useTerminalUiStateStore((state) => state.closeTerminal);
-  const surfaces = useRightPanelStore(
+  const allSurfaces = useRightPanelStore(
     (state) => selectThreadRightPanelState(state.byThreadKey, threadRef).surfaces,
   );
+  const surfaces = allSurfaces.filter((surface) => !isCenterSurface(surface));
 
   const releaseSurfaceResources = (ref: ScopedThreadRef, surface: RightPanelSurface) => {
     // Without preview access, server state remains until an authorized close or restart.

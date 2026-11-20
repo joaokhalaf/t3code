@@ -224,7 +224,7 @@ describe("revealServerTabs", () => {
     setup();
     useRightPanelStore.getState().openBrowser(ref, "tab_a");
     const browserSurfaceId = useRightPanelStore.getState().byThreadKey[threadKey]?.activeSurfaceId;
-    useRightPanelStore.getState().open(ref, "diff");
+    useRightPanelStore.getState().open(ref, "pull-requests");
 
     revealServerTabs(ref, [tab("tab_a", false)], { autoShowFloatingPreview: true });
     expect(useRightPanelStore.getState().byThreadKey[threadKey]?.activeSurfaceId).not.toBe(

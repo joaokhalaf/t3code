@@ -72,6 +72,7 @@ import {
   type AssistantCitation,
   type ResponseContextRecord,
   type ChatFileAttachment,
+  type DiffLayout,
   isProviderNativeSubagentThread,
   type EnvironmentId,
   type MessageId,
@@ -179,11 +180,14 @@ import { FileMetadataThreadProvider } from "../hooks/FileMetadataThreadProvider"
 import { RIGHT_PANEL_INLINE_LAYOUT_MEDIA_QUERY } from "../rightPanelLayout";
 import { PopoverCreateHandle } from "./ui/popover";
 import {
+  isCenterSurface,
+  selectActiveCenterSurface,
   selectActiveRightPanel,
   selectActiveRightPanelSurface,
   selectThreadPanelOpen,
   selectThreadRightPanelState,
   useRightPanelStore,
+  type RightPanelSurface,
 } from "../rightPanelStore";
 import { isPreviewSupportedInRuntime, useThreadPreviewState } from "../previewStateStore";
 import { previewRuntimeTabId } from "../browser/previewRuntimeTabId";
@@ -310,6 +314,7 @@ import { resolveScrollToEndClearance } from "./composerFooterLayout";
 import { ChatHeader } from "./chat/ChatHeader";
 import { ThreadVerification } from "./chat/ThreadVerification";
 import { ThreadSessionTabs } from "./chat/ThreadSessionTabs";
+import { CenterSurfaceTabs } from "./chat/CenterSurfaceTabs";
 import { useSideChat } from "./chat/useSideChat";
 import { useRemoteOpenState } from "~/remoteOpen";
 import { shouldShowOpenInPicker } from "./chat/OpenInPicker.logic";
@@ -1100,10 +1105,14 @@ export default function ChatView(props: ChatViewProps) {
   const activeRightPanelKind = useRightPanelStore((state) =>
     selectActiveRightPanel(state.byThreadKey, activeThreadRef),
   );
-  const diffOpen = activeRightPanelKind === "diff";
   const rightPanelState = useRightPanelStore((state) =>
     selectThreadRightPanelState(state.byThreadKey, activeThreadRef),
   );
+  // An embedded side chat routes its files and diffs to the host thread's center.
+  const activeCenterSurface = useRightPanelStore((state) =>
+    embedded ? null : selectActiveCenterSurface(state.byThreadKey, activeThreadRef),
+  );
+  const diffOpen = activeCenterSurface?.kind === "diff";
   const shouldUsePlanSidebarSheet = prefersPlanSidebarSheet && rightPanelState.maximized !== true;
   const activeRightPanelSurface = useRightPanelStore((state) =>
     selectActiveRightPanelSurface(state.byThreadKey, activeThreadRef),
@@ -1128,7 +1137,7 @@ export default function ChatView(props: ChatViewProps) {
     usePanelAnimationSettings();
   const rightPanelPresenceValue = {
     activeSurface: activeRightPanelSurface,
-    surfaces: rightPanelState.surfaces,
+    surfaces: rightPanelState.surfaces.filter((surface) => !isCenterSurface(surface)),
   };
   const rightPanelPresence = usePanelPresence(
     rightPanelOpen && activeThreadRef !== null,
@@ -3313,13 +3322,20 @@ export default function ChatView(props: ChatViewProps) {
     return embedded ? null : <NoActiveThreadState />;
   }
 
-  const rightPanelContent = activeThreadRef ? (
+  const renderSurfaceContent = (
+    threadRef: ScopedThreadRef,
+    surface: RightPanelSurface | null,
+    activeSurfaceId: string | null,
+    visible: boolean,
+    diffLayoutOverride?: DiffLayout,
+  ) => (
     <RightPanelSurfaceContent
-      surface={renderedRightPanelSurface}
-      activeSurfaceId={activeRightPanelSurface?.id ?? null}
-      threadRef={activeThreadRef}
+      surface={surface}
+      activeSurfaceId={activeSurfaceId}
+      threadRef={threadRef}
       environmentId={activeThread.environmentId}
-      visible={rightPanelOpen}
+      visible={visible}
+      diffLayoutOverride={diffLayoutOverride}
       composerDraftTarget={composerDraftTarget}
       keybindings={keybindings}
       configuredPreviewUrls={configuredPreviewUrls}
@@ -3365,7 +3381,15 @@ export default function ChatView(props: ChatViewProps) {
         onPendingChange: handleFilePendingChangeStable,
       }}
     />
-  ) : null;
+  );
+  const rightPanelContent = activeThreadRef
+    ? renderSurfaceContent(
+        activeThreadRef,
+        renderedRightPanelSurface,
+        activeRightPanelSurface?.id ?? null,
+        rightPanelOpen,
+      )
+    : null;
   const panelToggleControlProps = {
     terminalAvailable: activeProject !== null,
     terminalOpen: terminalUiState.terminalOpen,
@@ -3480,9 +3504,19 @@ export default function ChatView(props: ChatViewProps) {
             />
           </header>
         )}
+        {embedded || !activeThreadRef ? null : (
+          <CenterSurfaceTabs threadRef={activeThreadRef} onChatRestored={focusComposerStable} />
+        )}
 
-        <div className="relative flex min-h-0 min-w-0 flex-1">
+        <div
+          className={cn(
+            "relative flex min-h-0 min-w-0 flex-1",
+            // Hidden, not unmounted: the draft, scroll position and dialog hosts stay alive.
+            activeCenterSurface && "[&>[data-chat-canvas]]:invisible",
+          )}
+        >
           <ThreadFindCanvas
+            inert={activeCenterSurface !== null}
             findOptions={{
               skills: timelineSkills,
               progressive: serverConfig?.threadFindProgressive === true,
@@ -4086,6 +4120,20 @@ export default function ChatView(props: ChatViewProps) {
               </>
             )}
           </ThreadFindCanvas>
+          {activeCenterSurface && activeThreadRef ? (
+            <div
+              className="absolute inset-0 z-20 flex min-h-0 min-w-0 flex-col bg-background"
+              data-center-surface={activeCenterSurface.id}
+            >
+              {renderSurfaceContent(
+                activeThreadRef,
+                activeCenterSurface,
+                activeCenterSurface.id,
+                true,
+                "split",
+              )}
+            </div>
+          ) : null}
         </div>
 
         {embedded ? null : (

@@ -12260,5 +12260,7 @@
   "5a133ffc12889051": "上下文窗口：已用 {percent}%，{tokens} 个令牌",
   "b37ab3d4575fe11e": "上下文窗口：{tokens} 个令牌",
   "ea52810c3d4d79db": "使用限额：{usage}",
-  "a805e410d7962cb5": "{label}：已用 {percent}%"
+  "a805e410d7962cb5": "{label}：已用 {percent}%",
+  "c746f3d8fde4d4dc": "已打开的视图",
+  "6d13c68fa4fce9f7": "关闭 {name}"
 }

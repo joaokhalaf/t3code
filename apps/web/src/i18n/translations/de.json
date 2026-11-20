@@ -12235,5 +12235,7 @@
   "5a133ffc12889051": "Kontextfenster: {percent}% belegt, {tokens} Tokens",
   "b37ab3d4575fe11e": "Kontextfenster: {tokens} Tokens",
   "ea52810c3d4d79db": "Nutzungslimits: {usage}",
-  "a805e410d7962cb5": "{label}: {percent}% belegt"
+  "a805e410d7962cb5": "{label}: {percent}% belegt",
+  "c746f3d8fde4d4dc": "Geöffnete Ansichten",
+  "6d13c68fa4fce9f7": "{name} schließen"
 }

@@ -12235,5 +12235,7 @@
   "5a133ffc12889051": "Fenêtre de contexte : {percent} % utilisés, {tokens} jetons",
   "b37ab3d4575fe11e": "Fenêtre de contexte : {tokens} jetons",
   "ea52810c3d4d79db": "Limites d'utilisation : {usage}",
-  "a805e410d7962cb5": "{label} : {percent} % utilisés"
+  "a805e410d7962cb5": "{label} : {percent} % utilisés",
+  "c746f3d8fde4d4dc": "Vues ouvertes",
+  "6d13c68fa4fce9f7": "Fermer {name}"
 }

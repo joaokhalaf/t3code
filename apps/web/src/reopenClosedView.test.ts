@@ -91,8 +91,7 @@ describe("reopenClosedView", () => {
         useRightPanelStore.getState().byThreadKey,
         threadRef,
       );
-      expect(state.isOpen).toBe(true);
-      expect(state.activeSurfaceId).toBe(expected.id);
+      expect(state.centerSurfaceId).toBe(expected.id);
       expect(state.surfaces).toEqual([expected]);
       expect(openPreview).not.toHaveBeenCalled();
     },
@@ -121,12 +120,12 @@ describe("reopenClosedView", () => {
           panels.openFile(threadRef, folderTrail);
           panels.navigateFolder(threadRef, `file:${folderTrail}`, "", folderTrail);
         }
-        panels.close(threadRef);
+        panels.showChat(threadRef);
         const before = selectThreadRightPanelState(
           useRightPanelStore.getState().byThreadKey,
           hostRef,
         );
-        expect(before.isOpen).toBe(false);
+        expect(before.centerSurfaceId).toBeNull();
         const plan = planNextReopen([entry], () => ({
           environmentKnown: true,
           catalogReady: true,
@@ -144,8 +143,7 @@ describe("reopenClosedView", () => {
           useRightPanelStore.getState().byThreadKey,
           hostRef,
         );
-        expect(after.isOpen).toBe(true);
-        expect(after.activeSurfaceId).toBe("files");
+        expect(after.centerSurfaceId).toBe("files");
         expect(after.surfaces).toEqual([
           { kind: "files", id: "files", ...(folderTrail === undefined ? {} : { folderTrail }) },
         ]);
@@ -244,8 +242,9 @@ describe("planNextReopen", () => {
     panel: { isOpen: false, activeSurfaceId: null, surfaces: [] },
   };
   const openDiff: ThreadRightPanelState = {
-    isOpen: true,
-    activeSurfaceId: "diff",
+    isOpen: false,
+    activeSurfaceId: null,
+    centerSurfaceId: "diff",
     surfaces: [{ kind: "diff", id: "diff" }],
   };
 
@@ -289,8 +288,8 @@ describe("planNextReopen", () => {
     ],
     ["drops a tab that is already open", [{ ...known, panel: openDiff }, known], ["a"], "b"],
     [
-      "restores a tab whose panel is hidden",
-      [{ ...known, panel: { ...openDiff, isOpen: false } }],
+      "restores a tab the chat covers",
+      [{ ...known, panel: { ...openDiff, centerSurfaceId: null } }],
       [],
       "a",
     ],

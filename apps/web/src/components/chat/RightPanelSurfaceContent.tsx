@@ -1,5 +1,6 @@
 import { useGT } from "gt-react";
 import type {
+  DiffLayout,
   EditorId,
   EnvironmentId,
   IssueTrackerKind,
@@ -83,6 +84,7 @@ export function RightPanelSurfaceContent(props: {
   readonly issuesSupported: boolean;
   readonly files: RightPanelFileProps;
   readonly sideChatParentPanel: SideChatParentPanel;
+  readonly diffLayoutOverride?: DiffLayout | undefined;
 }) {
   const { surface, threadRef, visible, onCloseSurface } = props;
   const gt = useGT();
@@ -119,6 +121,7 @@ export function RightPanelSurfaceContent(props: {
             composerDraftTarget={props.composerDraftTarget}
             workspaceMutationId={props.workspaceMutationId}
             visible={visible}
+            layoutOverride={props.diffLayoutOverride}
           />
         </Suspense>
       );

@@ -29,8 +29,8 @@ describe("openDiffFilePrimaryAction", () => {
     expect(
       selectThreadRightPanelState(useRightPanelStore.getState().byThreadKey, THREAD_REF),
     ).toMatchObject({
-      isOpen: true,
-      activeSurfaceId: "file:Dockerfile",
+      isOpen: false,
+      centerSurfaceId: "file:Dockerfile",
     });
     expect(openInEditor).not.toHaveBeenCalled();
   });

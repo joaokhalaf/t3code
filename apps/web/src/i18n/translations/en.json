@@ -12244,5 +12244,7 @@
   "5a133ffc12889051": "Context window: {percent}% used, {tokens} tokens",
   "b37ab3d4575fe11e": "Context window: {tokens} tokens",
   "ea52810c3d4d79db": "Usage limits: {usage}",
-  "a805e410d7962cb5": "{label}: {percent}% used"
+  "a805e410d7962cb5": "{label}: {percent}% used",
+  "c746f3d8fde4d4dc": "Open views",
+  "6d13c68fa4fce9f7": "Close {name}"
 }
