@@ -1,5 +1,6 @@
-import { useGT } from "gt-react";
-import { formatDuration, type LimitPace } from "@t3tools/shared/usageLimits";
+import { useGT, useMessages } from "gt-react";
+import type { LimitPace } from "@t3tools/shared/usageLimits";
+import { formatDuration } from "@t3tools/shared/usageLimitsCopy";
 
 import { useNowMinute } from "../../hooks/useNowMinute";
 import { usePrimarySettings } from "../../hooks/useSettings";
@@ -13,6 +14,7 @@ import {
 
 export function ComposerUsageText({ usage }: { readonly usage: ComposerUsageLimitsInput }) {
   const gt = useGT();
+  const m = useMessages();
   const nowMinute = useNowMinute();
   const now = Date.parse(`${nowMinute}:00Z`);
   const timestampFormat = usePrimarySettings((settings) => settings.timestampFormat);
@@ -50,7 +52,7 @@ export function ComposerUsageText({ usage }: { readonly usage: ComposerUsageLimi
               {window.resetsAt !== null && window.resetsInMs !== null ? (
                 <span className="text-muted-foreground">
                   {gt("Resets in {duration} · {time}", {
-                    duration: formatDuration(window.resetsInMs),
+                    duration: formatDuration(window.resetsInMs, m),
                     time: formatUpcomingTimestamp(window.resetsAt, timestampFormat, now),
                   })}
                 </span>

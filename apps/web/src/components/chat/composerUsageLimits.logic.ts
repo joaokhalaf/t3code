@@ -6,10 +6,10 @@ import type {
 import {
   collectProviderUsageLimits,
   type LimitPace,
-  limitsNotice,
   paceOf,
   remainingPercent,
 } from "@t3tools/shared/usageLimits";
+import { limitsNotice } from "@t3tools/shared/usageLimitsCopy";
 
 export interface ComposerUsageLimitsInput {
   readonly providerInstanceId: ProviderInstanceId | null;

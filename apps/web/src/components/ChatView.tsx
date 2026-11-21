@@ -1959,7 +1959,7 @@ export default function ChatView(props: ChatViewProps) {
   const requestVerificationStable = useStableCallback((text: string) => {
     if (!canOperateThread || isWorking || isSendBusy) {
       return Promise.reject(
-        new Error("Verification is unavailable while this conversation is busy or read-only."),
+        new Error(gt("Verification is unavailable while this conversation is busy or read-only.")),
       );
     }
     const selection =

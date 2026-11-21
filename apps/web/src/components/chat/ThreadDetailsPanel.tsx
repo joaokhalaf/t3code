@@ -235,7 +235,9 @@ export function ThreadDetailsPanel(props: ThreadDetailsPanelProps) {
               {show.branch || show.pullRequests || show.git ? (
                 <ThreadDetailsSection
                   headingId="thread-details-version-control-heading"
-                  title={gt("Changes", { $context: "thread details item: version control changes" })}
+                  title={gt("Changes", {
+                    $context: "thread details item: version control changes",
+                  })}
                   showHeading
                 >
                   <div className="flex flex-col">

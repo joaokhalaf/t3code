@@ -65,7 +65,7 @@ export function ThreadSessionTabs({
   if (sessions.length === 0 && !isDraft) return null;
   return (
     <nav
-      aria-label="Threads"
+      aria-label={gt("Threads")}
       className={cn(
         "drag-region hidden h-10 shrink-0 items-center gap-1 border-b border-border/60 bg-sidebar px-3 md:flex wco:pr-(--workspace-native-controls-inset)",
         COLLAPSED_SIDEBAR_TITLEBAR_INSET_CLASS,
@@ -128,14 +128,14 @@ export function ThreadSessionTabs({
               className="[-webkit-app-region:no-drag]"
               variant="ghost"
               size="icon-sm"
-              aria-label="New thread"
+              aria-label={gt("New thread")}
               onClick={onNewThread}
             />
           }
         >
           <PlusIcon className="size-3.5" />
         </TooltipTrigger>
-        <TooltipPopup>New thread</TooltipPopup>
+        <TooltipPopup>{gt("New thread")}</TooltipPopup>
       </Tooltip>
     </nav>
   );
